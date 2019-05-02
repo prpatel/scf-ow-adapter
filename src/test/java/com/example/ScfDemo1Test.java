@@ -18,7 +18,7 @@ package com.example;
  */
 
 import com.google.gson.JsonObject;
-import com.ibm.openwhisk.scf.demo.ScfDemo2;
+import com.ibm.openwhisk.scf.demo.ScfOpenwhiskAdapter;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -32,10 +32,10 @@ public class ScfDemo1Test {
   public void testFunction() {
     JsonObject args = new JsonObject();
     args.addProperty("name", "TestValue");
-    JsonObject response = ScfDemo2.main(args);
+    JsonObject response = ScfOpenwhiskAdapter.main(args);
     assertNotNull(response);
     String greetings = response.getAsJsonPrimitive("greetings").getAsString();
     assertNotNull(greetings);
-    assertEquals("Welcome to Spring Cloud Function ScfDemo1", greetings);
+    assertEquals("eulaVtseT", greetings);
   }
 }

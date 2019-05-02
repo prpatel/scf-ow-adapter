@@ -9,10 +9,14 @@ import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.function.Function;
 
-public abstract class ScfOpenwhiskAdapterBean implements ApplicationRunner {
+@ComponentScan(basePackages = "${spring.cloud.function.scan.packages}")
+public class ScfOpenwhiskAdapterBean implements ApplicationRunner {
 
     private JsonObject response;
     @Autowired
@@ -22,23 +26,27 @@ public abstract class ScfOpenwhiskAdapterBean implements ApplicationRunner {
         // serialize the GSON to string, send raw to the Spring bean
         String[] stringifedJson = {args.toString()};
 
-        // config using @Configuration bean
         SpringApplicationBuilder springApp = new SpringApplicationBuilder()
-                .sources(ScfDemo1.class)
+                .sources(ScfOpenwhiskAdapterBean.class)
                 .bannerMode(Banner.Mode.OFF)
                 .web(WebApplicationType.NONE);
 
         ConfigurableApplicationContext cac = springApp.run(stringifedJson);
-
-//        ScfDemo1 f = cac.getBean(ScfDemo1.class);
-//        return f.getResponse();
-        return new JsonObject();
+        ScfOpenwhiskAdapterBean f = cac.getBean(ScfOpenwhiskAdapterBean.class);
+        System.out.println("Response: "+ f.getResponse());
+        return f.getResponse();
     }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
         String requestJson = args.getSourceArgs()[0];
-        Function fn = ctx.getBean(Function.class);
+        // by name
+        // Function fn = (Function)ctx.getBean("myfunction");
+
+        // by type, but must be registered as a spring bean
+        Function fn = (Function)ctx.getBean(Function.class);
+        System.out.println(fn.getClass().getName());
+
         String responseString = (String)fn.apply(requestJson);
         JsonObject response = new JsonObject();
         response.addProperty("greetings", responseString);
